@@ -1,0 +1,63 @@
+<div class="game-container" (click)="!gameStarted">
+  <div class="cards-grid" *ngIf="gameStarted" [style.grid-template-columns]="'repeat(' + columns + ', 1fr)'">
+    <div 
+      *ngFor="let card of cards; let i = index"
+      class="card"
+      [class.winner]="card.isWinner && card.flipped"
+      [class.disabled]="!canClickCards"
+      (click)="flipCard(i)"
+    >
+      <div class="card-inner" [class.flipped]="card.flipped">
+        <div class="card-front" [class.winner]="card.isWinner">
+          <span class="result-icon" *ngIf="card.flipped">
+            <span *ngIf="card.isWinner">
+              <img src="assets/images/premio.png" alt="Premio" class="prize-image">
+            </span>
+            <span *ngIf="!card.isWinner">❌</span>
+          </span>
+        </div>
+        <div class="card-back">
+          <img src="assets/images/card.png" alt="Milka" class="milka-image">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="message-overlay" *ngIf="showMessage" [class.win]="messageType === 'win'">
+    <form #phoneForm="ngForm">
+    <div class="message-content">
+      <button class="close-button" (click)="closeMessage()">
+        <i class="fas fa-times"></i>
+      </button>
+      <h2>{{ message }}</h2>
+      <div class="phone-form" *ngIf="!phoneSubmitted">
+        <p>¡Déjanos tu número para futuras promociones!</p>
+        
+          <div class="form-group">
+            <input 
+              type="tel" 
+              [(ngModel)]="phoneNumber" 
+              name="phoneNumber"
+              placeholder="Ingresa tu número de teléfono"
+              pattern="[0-9]{10}"
+              required
+              #phone="ngModel"
+            >
+            <div class="error-message" *ngIf="phone.invalid && phone.touched">
+              Ingresa un número válido de 10 dígitos
+            </div>
+          </div>
+          <button type="button" (click)="submitPhone(phoneForm)" [disabled]="phoneForm.invalid">Enviar</button>
+        
+      </div>
+      <div *ngIf="phoneSubmitted && phoneNumber != ''" class="success-message">
+        ¡Gracias! Tu número ha sido registrado.
+      </div>
+    </div>
+  </form>
+  </div>
+
+  <div class="start-message" *ngIf="!gameStarted">
+    <h2>¡Toca la pantalla para comenzar!</h2>
+  </div>
+</div> 

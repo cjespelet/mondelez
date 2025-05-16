@@ -1,0 +1,108 @@
+<app-admin-nav></app-admin-nav>
+<div class="game-results-container">
+  <div class="header">
+    <h2>Resultados de Juegos</h2>
+    <!-- <button class="logout-button" (click)="logout()">Cerrar Sesión</button> -->
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters">
+    <div class="filter-group">
+      <label for="distributorFilter">Distribuidor:</label>
+      <select id="distributorFilter" [(ngModel)]="selectedDistributorId" (ngModelChange)="onDistributorChange()">
+        <option value="">Todos los distribuidores</option>
+        <option *ngFor="let distributor of distributors" [value]="distributor.id">{{ distributor.name }}</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="clientFilter">Cliente:</label>
+      <select id="clientFilter" [(ngModel)]="selectedClientId" (ngModelChange)="loadResults()">
+        <option value="">Todos los clientes</option>
+        <option *ngFor="let client of filteredClients" [value]="client.id">{{ client.name }}</option>
+      </select>
+    </div>
+    
+    <div class="filter-group">
+      <label for="dateFilter">Fecha:</label>
+      <input type="date" id="dateFilter" [(ngModel)]="dateFilter" (ngModelChange)="loadResults()">
+    </div>
+    
+    <button class="download-pdf" (click)="downloadPDF()">
+      <i class="fas fa-file-pdf"></i> Descargar PDF
+    </button>
+    
+    <button class="clear-filters" (click)="clearFilters()">Limpiar Filtros</button>
+  </div>
+
+  <!-- Tabla de resultados -->
+  <div class="results-table-container">
+    <table class="results-table">
+      <thead>
+        <tr>
+          <th>Cliente</th>
+          <th>Fecha</th>
+          <th>Hora</th>
+          <th>Resultado</th>
+          <th>Teléfono</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let result of results">
+          <td>{{ result.client_name }}</td>
+          <td>{{ formatDate(result.date) }}</td>
+          <td>{{ formatTime(result.created_at) }}</td>
+          <td>{{ result.result }}</td>
+          <td>{{ result.phone_number }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Mensaje de carga -->
+    <div *ngIf="loading" class="loading">
+      <div class="spinner"></div>
+      <p>Cargando resultados...</p>
+    </div>
+
+    <!-- Mensaje de error -->
+    <div *ngIf="error" class="error">
+      {{ error }}
+    </div>
+
+    <!-- Mensaje de no resultados -->
+    <div *ngIf="!loading && results.length === 0" class="no-results">
+      No se encontraron resultados
+    </div>
+  </div>
+
+  <!-- Paginación -->
+  <div class="pagination" *ngIf="totalItems > 0">
+    <div class="pagination-controls">
+      <button 
+        [disabled]="currentPage === 1"
+        (click)="onPageChange(currentPage - 1)">
+        Anterior
+      </button>
+      
+      <span class="page-info">
+        Página {{ currentPage }} de {{ totalPages }}
+      </span>
+      
+      <button 
+        [disabled]="currentPage * itemsPerPage >= totalItems"
+        (click)="onPageChange(currentPage + 1)">
+        Siguiente
+      </button>
+    </div>
+
+    <div class="page-size-selector">
+      <label for="pageSize">Resultados por página:</label>
+      <select id="pageSize" [(ngModel)]="itemsPerPage" (ngModelChange)="onPageSizeChange()">
+        <option [value]="10">10</option>
+        <option [value]="20">20</option>
+        <option [value]="50">50</option>
+        <option [value]="100">100</option>
+      </select>
+    </div>
+  </div>
+</div> 

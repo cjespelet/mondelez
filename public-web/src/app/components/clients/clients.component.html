@@ -1,0 +1,122 @@
+<app-admin-nav></app-admin-nav>
+<div class="clients-container">
+  <div class="header">
+    <h2>Gestión de Clientes</h2>
+    <button class="add-client-button" (click)="openAddModal()">
+      <i class="fas fa-plus"></i> Agregar Cliente
+    </button>
+  </div>
+
+  <!-- Buscador y Filtros -->
+  <div class="filters-container">
+    <div class="search-container">
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm" 
+        (ngModelChange)="onSearch()"
+        placeholder="Buscar por nombre..."
+        class="search-input"
+      >
+    </div>
+
+    <div class="filter-container">
+      <select 
+        [(ngModel)]="selectedDistributorId" 
+        (ngModelChange)="onDistributorChange()"
+        class="filter-select"
+      >
+        <option value="">Todos los distribuidores</option>
+        <option *ngFor="let distributor of distributors" [value]="distributor.id">
+          {{ distributor.name }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Tabla de clientes -->
+  <div class="clients-table-container">
+    <table class="clients-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Video</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let client of clients">
+          <td>{{ client.name }}</td>
+          <td>{{ client.video_url }}</td>
+          <td class="actions">
+            <button class="edit-button" (click)="openEditModal(client)">Editar</button>
+            <button class="delete-button" (click)="deleteClient(client.id)">Eliminar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Mensaje de carga -->
+    <div *ngIf="loading" class="loading">
+      <div class="spinner"></div>
+      <p>Cargando clientes...</p>
+    </div>
+
+    <!-- Mensaje de error -->
+    <div *ngIf="error" class="error">
+      {{ error }}
+    </div>
+
+    <!-- Mensaje de no resultados -->
+    <div *ngIf="!loading && clients.length === 0" class="no-results">
+      No se encontraron clientes
+    </div>
+  </div>
+
+  <!-- Paginación -->
+  <div class="pagination" *ngIf="totalItems > 0">
+    <button 
+      [disabled]="currentPage === 1"
+      (click)="onPageChange(currentPage - 1)">
+      Anterior
+    </button>
+    
+    <span class="page-info">
+      Página {{ currentPage }} de {{ totalPages }}
+    </span>
+    
+    <button 
+      [disabled]="currentPage * itemsPerPage >= totalItems"
+      (click)="onPageChange(currentPage + 1)">
+      Siguiente
+    </button>
+  </div>
+</div>
+
+<!-- Modal para agregar/editar cliente -->
+<div class="modal" *ngIf="showAddModal || showEditModal">
+  <div class="modal-content">
+    <h3>{{ showAddModal ? 'Agregar Cliente' : 'Editar Cliente' }}</h3>
+    <form [formGroup]="clientForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="name">Nombre:</label>
+        <input type="text" id="name" formControlName="name">
+        <div *ngIf="clientForm.get('name')?.invalid && clientForm.get('name')?.touched" class="error-message">
+          El nombre es requerido
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="video_url">Video:</label>
+        <input type="text" id="video_url" formControlName="video_url">
+        <div *ngIf="clientForm.get('video_url')?.invalid && clientForm.get('video_url')?.touched" class="error-message">
+          Video inválido
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" (click)="showAddModal = false; showEditModal = false">Cancelar</button>
+        <button type="submit" [disabled]="clientForm.invalid">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div> 

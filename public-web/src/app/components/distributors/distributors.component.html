@@ -1,0 +1,109 @@
+<app-admin-nav></app-admin-nav>
+<div class="distributors-container">
+  <div class="header">
+    <h2>Gestión de Distribuidores</h2>
+    <button class="add-distributor-button" (click)="openAddModal()">
+      <i class="fas fa-plus"></i> Agregar Distribuidor
+    </button>
+  </div>
+
+  <!-- Buscador -->
+  <div class="search-container">
+    <input 
+      type="text" 
+      [(ngModel)]="searchTerm" 
+      (ngModelChange)="onSearch()"
+      placeholder="Buscar por nombre o ciudad..."
+      class="search-input"
+    >
+  </div>
+
+  <!-- Tabla de distribuidores -->
+  <div class="distributors-table-container">
+    <table class="distributors-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Ciudad</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let distributor of distributors">
+          <td>{{ distributor.name }}</td>
+          <td>{{ distributor.city }}</td>
+          <td class="actions">
+            <button class="edit-button" (click)="openEditModal(distributor)">Editar</button>
+            <button class="delete-button" (click)="deleteDistributor(distributor.id)">Eliminar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Mensaje de carga -->
+    <div *ngIf="loading" class="loading">
+      <div class="spinner"></div>
+      <p>Cargando distribuidores...</p>
+    </div>
+
+    <!-- Mensaje de error -->
+    <div *ngIf="error" class="error">
+      {{ error }}
+    </div>
+
+    <!-- Mensaje de no resultados -->
+    <div *ngIf="!loading && distributors.length === 0" class="no-results">
+      No se encontraron distribuidores
+    </div>
+  </div>
+
+  <!-- Paginación -->
+  <div class="pagination" *ngIf="totalItems > 0">
+    <button 
+      [disabled]="currentPage === 1"
+      (click)="onPageChange(currentPage - 1)">
+      Anterior
+    </button>
+    
+    <span class="page-info">
+      Página {{ currentPage }} de {{ totalPages }}
+    </span>
+    
+    <button 
+      [disabled]="currentPage * itemsPerPage >= totalItems"
+      (click)="onPageChange(currentPage + 1)">
+      Siguiente
+    </button>
+  </div>
+</div>
+
+<!-- Modal para agregar/editar distribuidor -->
+<div class="modal" *ngIf="showAddModal || showEditModal">
+  <div class="modal-content">
+    <h3>{{ showAddModal ? 'Agregar Distribuidor' : 'Editar Distribuidor' }}</h3>
+    <form [formGroup]="distributorForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="name">Nombre:</label>
+        <input type="text" id="name" formControlName="name" maxlength="100">
+        <div *ngIf="distributorForm.get('name')?.invalid && distributorForm.get('name')?.touched" class="error-message">
+          <span *ngIf="distributorForm.get('name')?.errors?.['required']">El nombre es requerido</span>
+          <span *ngIf="distributorForm.get('name')?.errors?.['maxlength']">El nombre no puede tener más de 100 caracteres</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="city">Ciudad:</label>
+        <input type="text" id="city" formControlName="city" maxlength="100">
+        <div *ngIf="distributorForm.get('city')?.invalid && distributorForm.get('city')?.touched" class="error-message">
+          <span *ngIf="distributorForm.get('city')?.errors?.['required']">La ciudad es requerida</span>
+          <span *ngIf="distributorForm.get('city')?.errors?.['maxlength']">La ciudad no puede tener más de 100 caracteres</span>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" (click)="showAddModal = false; showEditModal = false">Cancelar</button>
+        <button type="submit" [disabled]="distributorForm.invalid">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div> 

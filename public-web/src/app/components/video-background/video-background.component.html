@@ -1,0 +1,27 @@
+<div class="video-container" *ngIf="!loading && !error && videoUrl">
+  <div class="video-wrapper">
+    <iframe 
+      [src]="videoUrl" 
+      frameborder="0" 
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+      allowfullscreen>
+    </iframe>
+  </div>
+  
+  <div class="video-overlay" (click)="goToGame()">
+    <!-- <div class="overlay-content" *ngIf="!videoEnded">
+      <span class="click-hint">Haz clic para saltar el video</span>
+    </div>
+    <div class="overlay-content" *ngIf="videoEnded">
+      <span class="click-hint">Haz clic para ir al juego</span>
+    </div> -->
+  </div>
+</div>
+
+<div class="loading" *ngIf="loading">
+  Cargando video...
+</div>
+
+<div class="error" *ngIf="error">
+  {{ error }}
+</div> 

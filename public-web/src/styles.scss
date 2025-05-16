@@ -1,0 +1,29 @@
+/* Estilos globales */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Estilos para tablet */
+@media (max-width: 1024px) {
+  .cards-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+    grid-template-rows: repeat(6, 1fr) !important;
+  }
+}
+
+/* Estilos para móvil */
+@media (max-width: 768px) {
+  .cards-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    grid-template-rows: repeat(8, 1fr) !important;
+  }
+} 

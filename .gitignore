@@ -32,4 +32,8 @@ yarn-error.log*
 # Angular
 public-web/dist/
 public-web/.angular/
-public-web/node_modules/ 
+public-web/node_modules/
+
+# Server
+main-server/node_modules/
+main-server/.env 
