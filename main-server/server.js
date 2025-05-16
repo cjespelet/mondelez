@@ -19,7 +19,11 @@ const PORT = process.env.PORT || 3000;
 
 // Configuración de CORS
 app.use(cors({
-  origin: ['http://localhost:4200', 'http://localhost:3000'],
+  origin: [
+    'http://localhost:4200',
+    'http://localhost:3000',
+    'https://mondelez-public-web.onrender.com' // ✅ Agregá el dominio del frontend
+  ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
