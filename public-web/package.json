@@ -7,7 +7,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build --configuration production",
+    "build": "ng build || (cat /opt/render/.cache/_logs/$(ls -t /opt/render/.cache/_logs | head -1) && exit 1)",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
