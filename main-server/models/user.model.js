@@ -5,6 +5,8 @@ const config = require('../config/config');
 
 class User {
   static async findByUsername(username) {
+
+    console.log('username', username);
     try {
       const result = await pool.query(
         'SELECT u.*, c.video_url FROM users u LEFT JOIN clients c ON u.client_id = c.id WHERE u.username = $1',

@@ -68,7 +68,7 @@ app.listen(PORT, async () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
   try {
     // Inicializar tablas de la base de datos
-    await GameResult.createTable();
+    // await GameResult.createTable();
     console.log('Tablas inicializadas correctamente');
   } catch (error) {
     console.error('Error al inicializar las tablas:', error);

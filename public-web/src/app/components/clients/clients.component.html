@@ -39,6 +39,7 @@
       <thead>
         <tr>
           <th>Nombre</th>
+          <th>Usuario</th>
           <th>Video</th>
           <th>Acciones</th>
         </tr>
@@ -46,6 +47,7 @@
       <tbody>
         <tr *ngFor="let client of clients">
           <td>{{ client.name }}</td>
+          <td>{{ client.username }}</td>
           <td>{{ client.video_url }}</td>
           <td class="actions">
             <button class="edit-button" (click)="openEditModal(client)">Editar</button>
@@ -105,27 +107,30 @@
         </div>
       </div>
 
-      <div class="form-group">
+      <div class="form-group" *ngIf="showAddModal">
         <label for="username">Usuario:</label>
         <input 
           type="text" 
           id="username" 
-          formControlName="username"
-          [readonly]="showEditModal">
+          formControlName="username">
         <div *ngIf="clientForm.get('username')?.invalid && clientForm.get('username')?.touched" class="error-message">
           El usuario es requerido
         </div>
       </div>
 
       <div class="form-group">
-        <label for="password">{{ showEditModal ? 'Nueva Contraseña (opcional)' : 'Contraseña' }}:</label>
+        <label for="password">{{ showAddModal ? 'Contraseña:' : 'Nueva Contraseña (opcional):' }}</label>
         <input 
           type="password" 
           id="password" 
           formControlName="password"
-          [required]="!showEditModal">
-        <div *ngIf="clientForm.get('password')?.invalid && clientForm.get('password')?.touched" class="error-message">
-          {{ showEditModal ? 'La contraseña debe tener al menos 6 caracteres' : 'La contraseña es requerida y debe tener al menos 6 caracteres' }}
+          [required]="showAddModal"
+          placeholder="{{ showAddModal ? '' : 'Dejar en blanco para mantener la contraseña actual' }}">
+        <div *ngIf="showAddModal && clientForm.get('password')?.invalid && clientForm.get('password')?.touched" class="error-message">
+          La contraseña es requerida y debe tener al menos 6 caracteres
+        </div>
+        <div *ngIf="!showAddModal && clientForm.get('password')?.invalid && clientForm.get('password')?.touched" class="error-message">
+          La contraseña debe tener al menos 6 caracteres
         </div>
       </div>
 

@@ -8,16 +8,17 @@ class ClientController {
       const offset = (page - 1) * limit;
 
       let query = `
-        SELECT c.id, c.name, c.video_url, c.created_at, d.name as distributor_name
+        SELECT c.id, c.name, c.video_url, c.created_at, d.name as distributor_name, u.username
         FROM clients c
         LEFT JOIN distributors d ON c.distributor_id = d.id
+        LEFT JOIN users u ON c.id = u.client_id
         WHERE 1=1
       `;
       const params = [];
       let paramIndex = 1;
 
       if (search) {
-        query += ` AND c.name ILIKE $${paramIndex}`;
+        query += ` AND (c.name ILIKE $${paramIndex} OR u.username ILIKE $${paramIndex})`;
         params.push(`%${search}%`);
         paramIndex++;
       }
@@ -29,7 +30,7 @@ class ClientController {
       }
 
       // Obtener total de registros
-      const countQuery = query.replace('SELECT c.id, c.name, c.video_url, c.created_at, d.name as distributor_name', 'SELECT COUNT(*)');
+      const countQuery = query.replace('SELECT c.id, c.name, c.video_url, c.created_at, d.name as distributor_name, u.username', 'SELECT COUNT(*)');
       const countResult = await pool.query(countQuery, params);
       const total = parseInt(countResult.rows[0].count);
 

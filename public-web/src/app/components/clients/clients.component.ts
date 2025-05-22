@@ -15,6 +15,7 @@ export class ClientsComponent implements OnInit {
   error: string | null = null;
   showAddModal: boolean = false;
   showEditModal: boolean = false;
+  editingClientId: number | null = null;
   clientForm: FormGroup;
   searchTerm: string = '';
   selectedDistributorId: string = '';
@@ -32,7 +33,7 @@ export class ClientsComponent implements OnInit {
   ) {
     this.clientForm = this.fb.group({
       name: ['', Validators.required],
-      username: ['', [Validators.required, Validators.minLength(3)]],
+      username: ['', Validators.required],
       password: ['', [Validators.required, Validators.minLength(6)]],
       video_url: ['', Validators.required]
     });
@@ -46,78 +47,84 @@ export class ClientsComponent implements OnInit {
   closeModal() {
     this.showAddModal = false;
     this.showEditModal = false;
+    this.editingClientId = null;
     this.clientForm.reset();
+    this.error = null;
   }
 
   openAddModal() {
     this.showAddModal = true;
     this.showEditModal = false;
     this.clientForm.reset();
+    this.clientForm.patchValue({
+      name: '',
+      username: '',
+      password: '',
+      video_url: ''
+    });
+    // Establecer validadores para crear
+    this.clientForm.get('username')?.setValidators([Validators.required]);
     this.clientForm.get('password')?.setValidators([Validators.required, Validators.minLength(6)]);
+    this.clientForm.get('username')?.updateValueAndValidity();
     this.clientForm.get('password')?.updateValueAndValidity();
   }
 
   openEditModal(client: any) {
     this.showEditModal = true;
     this.showAddModal = false;
+    this.editingClientId = client.id;
+    this.clientForm.reset();
     this.clientForm.patchValue({
       name: client.name,
-      username: client.username,
-      video_url: client.video_url
+      video_url: client.video_url,
+      password: '' // Inicializar password vacío
     });
-    // En modo edición, la contraseña es opcional
-    this.clientForm.get('password')?.clearValidators();
-    this.clientForm.get('password')?.setValidators([Validators.minLength(6)]);
+    // Remover validadores requeridos para editar
+    this.clientForm.get('username')?.clearValidators();
+    this.clientForm.get('password')?.setValidators([Validators.minLength(6)]); // Solo validar longitud mínima
+    this.clientForm.get('username')?.updateValueAndValidity();
     this.clientForm.get('password')?.updateValueAndValidity();
   }
 
   onSubmit() {
-    if (this.clientForm.valid) {
-      const formData = this.clientForm.value;
-      
-      if (this.showAddModal) {
-        // Crear nuevo cliente y usuario
-        this.clientService.createClient(formData).subscribe({
-          next: (response) => {
-            if (response.success) {
-              this.closeModal();
-              this.loadClients();
-            } else {
-              this.error = response.message || 'Error al crear el cliente';
-            }
-          },
-          error: (err) => {
-            this.error = 'Error al crear el cliente';
-            console.error('Error:', err);
+    if (this.clientForm.invalid) return;
+
+    const formData = this.clientForm.value;
+    
+    if (this.showAddModal) {
+      // Crear nuevo cliente
+      this.clientService.createClient(formData).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.closeModal();
+            this.loadClients();
           }
-        });
-      } else if (this.showEditModal) {
-        // Actualizar cliente existente
-        const clientId = this.clients.find(c => c.username === formData.username)?.id;
-        if (clientId) {
-          // Si hay nueva contraseña, actualizarla
-          const updateData = {
-            name: formData.name,
-            video_url: formData.video_url,
-            ...(formData.password ? { password: formData.password } : {})
-          };
-          
-          this.clientService.updateClient(clientId, updateData).subscribe({
-            next: (response) => {
-              if (response.success) {
-                this.closeModal();
-                this.loadClients();
-              } else {
-                this.error = response.message || 'Error al actualizar el cliente';
-              }
-            },
-            error: (err) => {
-              this.error = 'Error al actualizar el cliente';
-              console.error('Error:', err);
-            }
-          });
+        },
+        error: (error) => {
+          console.error('Error al crear cliente:', error);
+          this.error = 'Error al crear el cliente';
         }
-      }
+      });
+    } else if (this.showEditModal && this.editingClientId !== null) {
+      // Editar cliente existente
+      const editData = {
+        name: formData.name,
+        video_url: formData.video_url,
+        password: formData.password || undefined // Solo enviar password si se proporcionó uno nuevo
+      };
+      
+      this.clientService.updateClient(this.editingClientId, editData).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.closeModal();
+            this.loadClients();
+          }
+        },
+        error: (error) => {
+          console.error('Error al actualizar cliente:', error);
+          this.error = 'Error al actualizar el cliente';
+        }
+      });
     }
   }
 
