@@ -10,16 +10,24 @@ async function runMigration() {
   try {
     await client.query('BEGIN');
     
-    // Leer y ejecutar el archivo de migración
-    const migrationPath = path.join(__dirname, 'migrations', 'add_distributor_to_clients.sql');
-    const migrationSQL = fs.readFileSync(migrationPath, 'utf8');
-    await client.query(migrationSQL);
+    // Leer y ejecutar todos los archivos de migración en orden
+    const migrationsDir = path.join(__dirname, 'migrations');
+    const migrationFiles = fs.readdirSync(migrationsDir)
+      .filter(file => file.endsWith('.sql'))
+      .sort(); // Asegura que se ejecuten en orden alfabético
+
+    for (const file of migrationFiles) {
+      console.log(`Ejecutando migración: ${file}`);
+      const migrationPath = path.join(migrationsDir, file);
+      const migrationSQL = fs.readFileSync(migrationPath, 'utf8');
+      await client.query(migrationSQL);
+    }
     
     await client.query('COMMIT');
-    console.log('Migración ejecutada exitosamente');
+    console.log('Migraciones ejecutadas exitosamente');
   } catch (error) {
     await client.query('ROLLBACK');
-    console.error('Error ejecutando la migración:', error);
+    console.error('Error ejecutando las migraciones:', error);
     throw error;
   } finally {
     client.release();

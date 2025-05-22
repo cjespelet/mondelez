@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ClientService } from '../../services/client.service';
 import { ApiService } from '../../services/api.service';
 
 @Component({
@@ -11,30 +12,113 @@ export class ClientsComponent implements OnInit {
   clients: any[] = [];
   distributors: any[] = [];
   loading: boolean = false;
-  error: string = '';
+  error: string | null = null;
+  showAddModal: boolean = false;
+  showEditModal: boolean = false;
+  clientForm: FormGroup;
+  searchTerm: string = '';
+  selectedDistributorId: string = '';
+  
+  // Paginación
   currentPage: number = 1;
   itemsPerPage: number = 10;
   totalItems: number = 0;
-  searchTerm: string = '';
-  selectedDistributorId: string = '';
-  showAddModal: boolean = false;
-  showEditModal: boolean = false;
-  selectedClient: any = null;
-  clientForm: FormGroup;
+  totalPages: number = 0;
 
   constructor(
-    private apiService: ApiService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private clientService: ClientService,
+    private apiService: ApiService
   ) {
     this.clientForm = this.fb.group({
       name: ['', Validators.required],
+      username: ['', [Validators.required, Validators.minLength(3)]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
       video_url: ['', Validators.required]
     });
   }
 
   ngOnInit() {
-    this.loadDistributors();
     this.loadClients();
+    this.loadDistributors();
+  }
+
+  closeModal() {
+    this.showAddModal = false;
+    this.showEditModal = false;
+    this.clientForm.reset();
+  }
+
+  openAddModal() {
+    this.showAddModal = true;
+    this.showEditModal = false;
+    this.clientForm.reset();
+    this.clientForm.get('password')?.setValidators([Validators.required, Validators.minLength(6)]);
+    this.clientForm.get('password')?.updateValueAndValidity();
+  }
+
+  openEditModal(client: any) {
+    this.showEditModal = true;
+    this.showAddModal = false;
+    this.clientForm.patchValue({
+      name: client.name,
+      username: client.username,
+      video_url: client.video_url
+    });
+    // En modo edición, la contraseña es opcional
+    this.clientForm.get('password')?.clearValidators();
+    this.clientForm.get('password')?.setValidators([Validators.minLength(6)]);
+    this.clientForm.get('password')?.updateValueAndValidity();
+  }
+
+  onSubmit() {
+    if (this.clientForm.valid) {
+      const formData = this.clientForm.value;
+      
+      if (this.showAddModal) {
+        // Crear nuevo cliente y usuario
+        this.clientService.createClient(formData).subscribe({
+          next: (response) => {
+            if (response.success) {
+              this.closeModal();
+              this.loadClients();
+            } else {
+              this.error = response.message || 'Error al crear el cliente';
+            }
+          },
+          error: (err) => {
+            this.error = 'Error al crear el cliente';
+            console.error('Error:', err);
+          }
+        });
+      } else if (this.showEditModal) {
+        // Actualizar cliente existente
+        const clientId = this.clients.find(c => c.username === formData.username)?.id;
+        if (clientId) {
+          // Si hay nueva contraseña, actualizarla
+          const updateData = {
+            name: formData.name,
+            video_url: formData.video_url,
+            ...(formData.password ? { password: formData.password } : {})
+          };
+          
+          this.clientService.updateClient(clientId, updateData).subscribe({
+            next: (response) => {
+              if (response.success) {
+                this.closeModal();
+                this.loadClients();
+              } else {
+                this.error = response.message || 'Error al actualizar el cliente';
+              }
+            },
+            error: (err) => {
+              this.error = 'Error al actualizar el cliente';
+              console.error('Error:', err);
+            }
+          });
+        }
+      }
+    }
   }
 
   loadDistributors() {
@@ -58,6 +142,7 @@ export class ClientsComponent implements OnInit {
           if (response.success) {
             this.clients = response.clients;
             this.totalItems = response.pagination.total;
+            this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
             this.loading = false;
           } else {
             this.error = 'Error al cargar los clientes';
@@ -86,49 +171,6 @@ export class ClientsComponent implements OnInit {
     this.loadClients();
   }
 
-  openAddModal() {
-    this.clientForm.reset();
-    this.showAddModal = true;
-  }
-
-  openEditModal(client: any) {
-    this.selectedClient = client;
-    this.clientForm.patchValue({
-      name: client.name,
-      video_url: client.video_url
-    });
-    this.showEditModal = true;
-  }
-
-  onSubmit() {
-    if (this.clientForm.valid) {
-      const clientData = this.clientForm.value;
-      if (this.showEditModal) {
-        this.apiService.updateClient(this.selectedClient.id, clientData)
-          .subscribe({
-            next: () => {
-              this.showEditModal = false;
-              this.loadClients();
-            },
-            error: (error) => {
-              this.error = 'Error al actualizar el cliente';
-            }
-          });
-      } else {
-        this.apiService.createClient(clientData)
-          .subscribe({
-            next: () => {
-              this.showAddModal = false;
-              this.loadClients();
-            },
-            error: (error) => {
-              this.error = 'Error al crear el cliente';
-            }
-          });
-      }
-    }
-  }
-
   deleteClient(clientId: number) {
     if (confirm('¿Estás seguro de que deseas eliminar este cliente?')) {
       this.apiService.deleteClient(clientId)
@@ -141,9 +183,5 @@ export class ClientsComponent implements OnInit {
           }
         });
     }
-  }
-
-  get totalPages(): number {
-    return Math.ceil(this.totalItems / this.itemsPerPage);
   }
 } 
