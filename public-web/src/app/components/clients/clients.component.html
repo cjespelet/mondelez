@@ -119,6 +119,23 @@
       </div>
 
       <div class="form-group">
+        <label for="distributor">Distribuidor:</label>
+        <select 
+          id="distributor" 
+          formControlName="distributor_id"
+          class="form-select"
+        >
+          <option value="">Seleccione un distribuidor</option>
+          <option *ngFor="let distributor of distributors" [value]="distributor.id">
+            {{ distributor.name }}
+          </option>
+        </select>
+        <div *ngIf="clientForm.get('distributor_id')?.invalid && clientForm.get('distributor_id')?.touched" class="error-message">
+          El distribuidor es requerido
+        </div>
+      </div>
+
+      <div class="form-group">
         <label for="password">{{ showAddModal ? 'Contraseña:' : 'Nueva Contraseña (opcional):' }}</label>
         <input 
           type="password" 

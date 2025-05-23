@@ -35,7 +35,8 @@ export class ClientsComponent implements OnInit {
       name: ['', Validators.required],
       username: ['', Validators.required],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      video_url: ['', Validators.required]
+      video_url: ['', Validators.required],
+      distributor_id: ['', Validators.required]
     });
   }
 
@@ -60,13 +61,16 @@ export class ClientsComponent implements OnInit {
       name: '',
       username: '',
       password: '',
-      video_url: ''
+      video_url: '',
+      distributor_id: ''
     });
     // Establecer validadores para crear
     this.clientForm.get('username')?.setValidators([Validators.required]);
     this.clientForm.get('password')?.setValidators([Validators.required, Validators.minLength(6)]);
+    this.clientForm.get('distributor_id')?.setValidators([Validators.required]);
     this.clientForm.get('username')?.updateValueAndValidity();
     this.clientForm.get('password')?.updateValueAndValidity();
+    this.clientForm.get('distributor_id')?.updateValueAndValidity();
   }
 
   openEditModal(client: any) {
@@ -77,13 +81,16 @@ export class ClientsComponent implements OnInit {
     this.clientForm.patchValue({
       name: client.name,
       video_url: client.video_url,
-      password: '' // Inicializar password vacío
+      password: '', // Inicializar password vacío
+      distributor_id: client.distributor_id
     });
     // Remover validadores requeridos para editar
     this.clientForm.get('username')?.clearValidators();
     this.clientForm.get('password')?.setValidators([Validators.minLength(6)]); // Solo validar longitud mínima
+    this.clientForm.get('distributor_id')?.setValidators([Validators.required]);
     this.clientForm.get('username')?.updateValueAndValidity();
     this.clientForm.get('password')?.updateValueAndValidity();
+    this.clientForm.get('distributor_id')?.updateValueAndValidity();
   }
 
   onSubmit() {
@@ -110,7 +117,8 @@ export class ClientsComponent implements OnInit {
       const editData = {
         name: formData.name,
         video_url: formData.video_url,
-        password: formData.password || undefined // Solo enviar password si se proporcionó uno nuevo
+        password: formData.password || undefined, // Solo enviar password si se proporcionó uno nuevo
+        distributor_id: formData.distributor_id
       };
       
       this.clientService.updateClient(this.editingClientId, editData).subscribe({

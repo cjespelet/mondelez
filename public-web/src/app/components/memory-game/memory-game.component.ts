@@ -162,6 +162,7 @@ export class MemoryGameComponent implements OnInit, OnDestroy {
 
   closeMessage() {
     this.showMessage = false;
+    this.router.navigate(['/video']);
     this.resetGame();
   }
 
