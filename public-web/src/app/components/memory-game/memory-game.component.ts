@@ -24,7 +24,7 @@ export class MemoryGameComponent implements OnInit, OnDestroy {
   phoneNumber: string = '';
   phoneSubmitted: boolean = false;
   private inactivityTimer: any;
-  private readonly INACTIVITY_TIMEOUT = 120000; // 2 minutos en milisegundos
+  private readonly INACTIVITY_TIMEOUT = 1200000; // 2 minutos en milisegundos
 
   constructor(
     private gameService: GameService,
