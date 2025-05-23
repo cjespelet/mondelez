@@ -5,11 +5,21 @@
   width: 100vw;
   height: 100vh;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-start;
   align-items: center;
   background-color: rgba(0, 0, 0, 0.5);
   perspective: 2000px;
   overflow: hidden;
+
+  .game-title {
+    color: white;
+    text-align: center;
+    margin-top: 10px;
+    font-size: 2rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    padding: 0 20px;
+  }
 }
 
 .cards-grid {
