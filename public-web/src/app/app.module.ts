@@ -16,6 +16,8 @@ import { ClientsComponent } from './components/clients/clients.component';
 import { AdminNavComponent } from './components/admin-nav/admin-nav.component';
 import { DistributorsComponent } from './components/distributors/distributors.component';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { environment } from '../environments/environment';
 
 @NgModule({
   declarations: [
@@ -35,7 +37,13 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     AppRoutingModule,
     HttpClientModule,
     ReactiveFormsModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    ServiceWorkerModule.register('ngsw-worker.js', {
+      enabled: environment.production,
+      // Register the ServiceWorker as soon as the app is stable
+      // or after 30 seconds (whichever comes first).
+      registrationStrategy: 'registerWhenStable:30000'
+    })
   ],
   providers: [
     {
