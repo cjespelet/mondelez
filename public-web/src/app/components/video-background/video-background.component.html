@@ -1,17 +1,18 @@
 <div class="video-container" *ngIf="!loading && !error && videoUrl">
-  <div class="video-wrapper">
-    <iframe 
-      [src]="videoUrl" 
-      frameborder="0" 
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-      allowfullscreen>
-    </iframe>
-  </div>
+  <video #videoPlayer autoplay loop muted playsinline>
+    <source [src]="videoUrl" type="video/mp4">
+  </video>
   
-  <div class="floating-button-container">
-    <button class="play-button" (click)="goToGame()">
-      ¡A jugar con Mondelez!
-    </button>
+  <div class="transition-overlay" *ngIf="showTransitionImage">
+    <img [src]="transitionImageUrl" alt="Transición" class="transition-image">
+  </div>
+
+  <div class="content-overlay">
+    <div class="floating-button-container">
+      <button class="play-button" (click)="goToGame()">
+        ¡A jugar con Mondelez!
+      </button>
+    </div>
   </div>
 </div>
 

@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ClientService } from '../../services/client.service';
 import { ApiService } from '../../services/api.service';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-clients',
@@ -26,17 +28,22 @@ export class ClientsComponent implements OnInit {
   totalItems: number = 0;
   totalPages: number = 0;
 
+  selectedFile: File | null = null;
+  apiUrl = environment.apiUrl;
+
   constructor(
     private fb: FormBuilder,
     private clientService: ClientService,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private http: HttpClient
   ) {
     this.clientForm = this.fb.group({
       name: ['', Validators.required],
       username: ['', Validators.required],
       password: ['', [Validators.required, Validators.minLength(6)]],
       video_url: ['', Validators.required],
-      distributor_id: ['', Validators.required]
+      distributor_id: ['', Validators.required],
+      transition_image: [null]
     });
   }
 
@@ -49,8 +56,10 @@ export class ClientsComponent implements OnInit {
     this.showAddModal = false;
     this.showEditModal = false;
     this.editingClientId = null;
+    this.selectedFile = null;
     this.clientForm.reset();
-    this.error = null;
+    this.clientForm.get('password')?.setValidators([Validators.required, Validators.minLength(6)]);
+    this.clientForm.get('password')?.updateValueAndValidity();
   }
 
   openAddModal() {
@@ -62,9 +71,9 @@ export class ClientsComponent implements OnInit {
       username: '',
       password: '',
       video_url: '',
-      distributor_id: ''
+      distributor_id: '',
+      transition_image: null
     });
-    // Establecer validadores para crear
     this.clientForm.get('username')?.setValidators([Validators.required]);
     this.clientForm.get('password')?.setValidators([Validators.required, Validators.minLength(6)]);
     this.clientForm.get('distributor_id')?.setValidators([Validators.required]);
@@ -81,58 +90,77 @@ export class ClientsComponent implements OnInit {
     this.clientForm.patchValue({
       name: client.name,
       video_url: client.video_url,
-      password: '', // Inicializar password vacío
-      distributor_id: client.distributor_id
+      distributor_id: client.distributor_id,
+      transition_image: client.transition_image
     });
-    // Remover validadores requeridos para editar
-    this.clientForm.get('username')?.clearValidators();
-    this.clientForm.get('password')?.setValidators([Validators.minLength(6)]); // Solo validar longitud mínima
-    this.clientForm.get('distributor_id')?.setValidators([Validators.required]);
-    this.clientForm.get('username')?.updateValueAndValidity();
+    this.clientForm.get('password')?.clearValidators();
     this.clientForm.get('password')?.updateValueAndValidity();
-    this.clientForm.get('distributor_id')?.updateValueAndValidity();
+  }
+
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedFile = input.files[0];
+      this.clientForm.patchValue({
+        transition_image: this.selectedFile
+      });
+    }
+  }
+
+  getImageUrl(filename: string): string {
+    return `${this.apiUrl}/uploads/transition-images/${filename}`;
   }
 
   onSubmit() {
-    if (this.clientForm.invalid) return;
-
-    const formData = this.clientForm.value;
+    // Verificamos solo los campos requeridos, excluyendo transition_image
+    const requiredFields = ['name', 'video_url', 'distributor_id'];
+    let isFormValid = requiredFields.every(field => this.clientForm.get(field)?.valid ?? false);
     
+    // Para el modal de agregar, también verificamos username y password
     if (this.showAddModal) {
-      // Crear nuevo cliente
-      this.clientService.createClient(formData).subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.closeModal();
-            this.loadClients();
-          }
-        },
-        error: (error) => {
-          console.error('Error al crear cliente:', error);
-          this.error = 'Error al crear el cliente';
-        }
-      });
-    } else if (this.showEditModal && this.editingClientId !== null) {
-      // Editar cliente existente
-      const editData = {
-        name: formData.name,
-        video_url: formData.video_url,
-        password: formData.password || undefined, // Solo enviar password si se proporcionó uno nuevo
-        distributor_id: formData.distributor_id
-      };
+      const usernameValid = this.clientForm.get('username')?.valid ?? false;
+      const passwordValid = this.clientForm.get('password')?.valid ?? false;
+      isFormValid = isFormValid && usernameValid && passwordValid;
+    }
+
+    if (isFormValid) {
+      const formData = new FormData();
       
-      this.clientService.updateClient(this.editingClientId, editData).subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.closeModal();
-            this.loadClients();
-          }
-        },
-        error: (error) => {
-          console.error('Error al actualizar cliente:', error);
-          this.error = 'Error al actualizar el cliente';
+      // Agregar todos los campos del formulario al FormData
+      Object.keys(this.clientForm.value).forEach(key => {
+        if (key === 'transition_image' && this.selectedFile) {
+          formData.append(key, this.selectedFile);
+        } else if (this.clientForm.get(key)?.value !== null) {
+          formData.append(key, this.clientForm.get(key)?.value);
         }
       });
+
+      if (this.showAddModal) {
+        this.http.post(`${this.apiUrl}/clients`, formData)
+          .subscribe({
+            next: (response: any) => {
+              this.loadClients();
+              this.closeModal();
+            },
+            error: (error) => {
+              console.error('Error al crear cliente:', error);
+              this.error = 'Error al crear el cliente';
+            }
+          });
+      } else {
+        const clientId = this.editingClientId;
+        this.http.put(`${this.apiUrl}/clients/${clientId}`, formData)
+          .subscribe({
+            next: (response: any) => {
+              this.loadClients();
+              this.closeModal();
+            },
+            error: (error) => {
+              console.error('Error al actualizar cliente:', error);
+              this.error = 'Error al actualizar el cliente';
+            }
+          });
+      }
     }
   }
 

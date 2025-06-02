@@ -159,9 +159,33 @@
         </div>
       </div>
 
+      <div class="form-group">
+        <label for="transition_image">Imagen de Transición:</label>
+        <input 
+          type="file" 
+          id="transition_image" 
+          (change)="onFileSelected($event)"
+          accept="image/*"
+          class="file-input"
+        >
+        <div *ngIf="selectedFile" class="selected-file">
+          Archivo seleccionado: {{ selectedFile.name }}
+        </div>
+        <div *ngIf="clientForm.get('transition_image')?.invalid && clientForm.get('transition_image')?.touched" class="error-message">
+          Por favor seleccione una imagen
+        </div>
+        <div class="field-hint">
+          Sugerencia: Utilice una imagen con dimensiones de 1600 x 1130 píxeles para mejor visualización
+        </div>
+        <div *ngIf="clientForm.get('transition_image_url')?.value" class="current-image">
+          <p>Imagen actual:</p>
+          <img [src]="getImageUrl(clientForm.get('transition_image_url')?.value)" alt="Imagen de transición actual">
+        </div>
+      </div>
+
       <div class="modal-actions">
         <button type="button" (click)="closeModal()">Cancelar</button>
-        <button type="submit" [disabled]="clientForm.invalid">Guardar</button>
+        <button type="submit">Guardar</button>
       </div>
     </form>
   </div>

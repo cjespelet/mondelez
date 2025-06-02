@@ -90,9 +90,17 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
 
     &.winner {
       background: linear-gradient(135deg, #fff, #fff);
+    }
+
+    &.loser {
+      background-image: url('/assets/images/segui.jpg');
+      background-color: #8065aa;
     }
 
     .result-icon {

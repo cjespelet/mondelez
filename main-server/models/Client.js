@@ -16,6 +16,10 @@ const Client = sequelize.define('Client', {
     type: DataTypes.STRING,
     allowNull: false
   },
+  transitionImage: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
   // Agregar más campos según sea necesario
 }, {
   timestamps: true,

@@ -48,6 +48,9 @@ app.get('/api/video-url', auth, AuthController.getVideoUrl);
 // Servir archivos estáticos de Angular
 app.use(express.static(path.join(__dirname, '../public-web/dist/public-web/browser')));
 
+// Servir archivos estáticos desde el directorio de uploads
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Manejar todas las demás rutas
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../public-web/dist/public-web/browser/index.html'));

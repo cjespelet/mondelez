@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { ApiService } from '../../services/api.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-video-background',
@@ -10,14 +12,21 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 })
 export class VideoBackgroundComponent implements OnInit {
   videoUrl: SafeResourceUrl | null = null;
-  loading = true;
+  transitionImageUrl: string | null = null;
+  loading: boolean = true;
   error: string | null = null;
+  showTransitionImage: boolean = false;
+  private serverBaseUrl: string;
 
   constructor(
-    private authService: AuthService,
+    private apiService: ApiService,
     private router: Router,
+    private authService: AuthService,
     private sanitizer: DomSanitizer
-  ) {}
+  ) {
+    // Extraer la URL base del servidor sin /api
+    this.serverBaseUrl = environment.apiUrl.replace('/api', '');
+  }
 
   ngOnInit() {
     this.loadVideo();
@@ -33,6 +42,10 @@ export class VideoBackgroundComponent implements OnInit {
             if (videoId) {
               const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&controls=0&playlist=${videoId}&enablejsapi=1&rel=0&showinfo=0&modestbranding=1`;
               this.videoUrl = this.sanitizer.bypassSecurityTrustResourceUrl(embedUrl);
+              // Construir la URL completa usando la URL base del servidor sin /api
+              this.transitionImageUrl = response.transitionImage 
+                ? `${this.serverBaseUrl}${response.transitionImage}`
+                : 'assets/images/transition.png';
               this.loading = false;
             } else {
               this.error = 'URL de video inválida';
@@ -62,6 +75,9 @@ export class VideoBackgroundComponent implements OnInit {
   }
 
   goToGame() {
-    this.router.navigate(['/game']);
+    this.showTransitionImage = true;
+    setTimeout(() => {
+      this.router.navigate(['/game']);
+    }, 3000);
   }
 } 

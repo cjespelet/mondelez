@@ -56,19 +56,20 @@ class AuthController {
       const clientId = req.user.client_id;
       const client = await User.getClientById(clientId);
       
-      if (!client || !client.video_url) {
+      if (!client) {
         return res.status(404).json({
           success: false,
-          message: 'URL de video no encontrada'
+          message: 'Cliente no encontrado'
         });
       }
 
       res.json({
         success: true,
-        videoUrl: client.video_url
+        videoUrl: client.video_url,
+        transitionImage: client.transition_image ? `/uploads/transition-images/${client.transition_image}` : null
       });
     } catch (error) {
-      console.error('Error al obtener URL de video:', error);
+      console.error('Error al obtener configuración del cliente:', error);
       res.status(500).json({
         success: false,
         message: 'Error en el servidor'

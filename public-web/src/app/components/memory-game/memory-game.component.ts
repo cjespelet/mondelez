@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { GameService } from '../../services/game.service'
 import { AuthService } from '../../services/auth.service';
 import { NgForm } from '@angular/forms';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-memory-game',
@@ -23,6 +24,8 @@ export class MemoryGameComponent implements OnInit, OnDestroy {
   canClickCards: boolean = true;
   phoneNumber: string = '';
   phoneSubmitted: boolean = false;
+  transitionImageUrl: string | null = null;
+  private serverBaseUrl: string;
   private inactivityTimer: any;
   private readonly INACTIVITY_TIMEOUT = 1200000; // 2 minutos en milisegundos
 
@@ -30,9 +33,12 @@ export class MemoryGameComponent implements OnInit, OnDestroy {
     private gameService: GameService,
     private router: Router,
     private authService: AuthService
-  ) {}
+  ) {
+    this.serverBaseUrl = environment.apiUrl.replace('/api', '');
+  }
 
   ngOnInit() {
+    this.loadTransitionImage();
     this.initializeGame();
     this.startInactivityTimer();
     // Agregar event listeners para detectar actividad
@@ -170,5 +176,21 @@ export class MemoryGameComponent implements OnInit, OnDestroy {
     this.initializeGame();
     this.phoneSubmitted = false;
     this.phoneNumber = '';
+  }
+
+  loadTransitionImage() {
+    const clientId = this.authService.getClientId();
+    if (clientId) {
+      this.authService.getVideoUrl().subscribe({
+        next: (response) => {
+          if (response.success && response.transitionImage) {
+            this.transitionImageUrl = `${this.serverBaseUrl}${response.transitionImage}`;
+          }
+        },
+        error: (err) => {
+          console.error('Error loading transition image:', err);
+        }
+      });
+    }
   }
 } 

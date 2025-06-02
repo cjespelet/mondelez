@@ -19,6 +19,7 @@ interface LoginResponse {
 interface VideoUrlResponse {
   success: boolean;
   videoUrl: string;
+  transitionImage: string | null;
 }
 
 @Injectable({

@@ -1,5 +1,7 @@
 const pool = require('../config/database');
 const bcrypt = require('bcryptjs');
+const fs = require('fs').promises;
+const path = require('path');
 
 class ClientController {
   static async getClients(req, res) {
@@ -63,8 +65,17 @@ class ClientController {
     const client = await pool.connect();
     try {
       const { name, username, password, video_url, distributor_id } = req.body;
+      const transitionImage = req.file ? req.file.filename : null;
 
       if (!name || !username || !password || !video_url) {
+        // Si se subió un archivo pero la validación falló, eliminarlo
+        if (req.file) {
+          try {
+            await fs.unlink(req.file.path);
+          } catch (error) {
+            console.error('Error al eliminar archivo subido:', error);
+          }
+        }
         return res.status(400).json({
           success: false,
           message: 'Todos los campos son requeridos'
@@ -103,10 +114,10 @@ class ClientController {
 
       // Crear cliente
       const clientResult = await client.query(
-        `INSERT INTO clients (name, video_url, distributor_id) 
-         VALUES ($1, $2, $3) 
-         RETURNING id, name, video_url, distributor_id, created_at`,
-        [name, video_url, distributor_id || null]
+        `INSERT INTO clients (name, video_url, distributor_id, transition_image) 
+         VALUES ($1, $2, $3, $4) 
+         RETURNING id, name, video_url, distributor_id, transition_image, created_at`,
+        [name, video_url, distributor_id || null, transitionImage]
       );
 
       const clientId = clientResult.rows[0].id;
@@ -132,6 +143,14 @@ class ClientController {
         }
       });
     } catch (error) {
+      // Si hay error y se subió un archivo, eliminarlo
+      if (req.file) {
+        try {
+          await fs.unlink(req.file.path);
+        } catch (unlinkError) {
+          console.error('Error al eliminar archivo subido:', unlinkError);
+        }
+      }
       await client.query('ROLLBACK');
       console.error('Error al crear cliente:', error);
       res.status(500).json({
@@ -148,6 +167,7 @@ class ClientController {
     try {
       const { id } = req.params;
       const { name, video_url, distributor_id, password } = req.body;
+      let transitionImage = req.body.transition_image; // Mantener la imagen existente por defecto
 
       if (!name || !video_url) {
         return res.status(400).json({
@@ -160,7 +180,7 @@ class ClientController {
 
       // Verificar si el cliente existe
       const existingClient = await client.query(
-        'SELECT id FROM clients WHERE id = $1',
+        'SELECT id, transition_image FROM clients WHERE id = $1',
         [id]
       );
 
@@ -172,14 +192,28 @@ class ClientController {
         });
       }
 
+      // Si se subió una nueva imagen
+      if (req.file) {
+        // Eliminar la imagen anterior si existe
+        const oldImage = existingClient.rows[0].transition_image;
+        if (oldImage) {
+          try {
+            await fs.unlink(path.join('uploads/transition-images', oldImage));
+          } catch (error) {
+            console.error('Error al eliminar imagen anterior:', error);
+          }
+        }
+        transitionImage = req.file.filename;
+      }
+
       // Actualizar cliente
       const updateQuery = `
         UPDATE clients 
-        SET name = $1, video_url = $2, distributor_id = $3
-        WHERE id = $4 
-        RETURNING id, name, video_url, distributor_id, created_at
+        SET name = $1, video_url = $2, distributor_id = $3, transition_image = $4
+        WHERE id = $5 
+        RETURNING id, name, video_url, distributor_id, transition_image, created_at
       `;
-      const params = [name, video_url, distributor_id || null, id];
+      const params = [name, video_url, distributor_id || null, transitionImage, id];
 
       const result = await client.query(updateQuery, params);
 
@@ -219,18 +253,28 @@ class ClientController {
 
       await client.query('BEGIN');
 
-      // Verificar si el cliente existe
-      const existingClient = await client.query(
-        'SELECT id FROM clients WHERE id = $1',
+      // Obtener la imagen de transición antes de eliminar
+      const clientResult = await client.query(
+        'SELECT transition_image FROM clients WHERE id = $1',
         [id]
       );
 
-      if (existingClient.rows.length === 0) {
+      if (clientResult.rows.length === 0) {
         await client.query('ROLLBACK');
         return res.status(404).json({
           success: false,
           message: 'Cliente no encontrado'
         });
+      }
+
+      // Eliminar la imagen de transición si existe
+      const transitionImage = clientResult.rows[0].transition_image;
+      if (transitionImage) {
+        try {
+          await fs.unlink(path.join('uploads/transition-images', transitionImage));
+        } catch (error) {
+          console.error('Error al eliminar imagen de transición:', error);
+        }
       }
 
       // Eliminar usuario asociado

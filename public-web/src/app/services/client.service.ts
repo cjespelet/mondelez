@@ -48,6 +48,8 @@ export class ClientService {
     username: string; 
     password: string; 
     video_url: string;
+    distributor_id: string;
+    transition_image_url: string;
   }): Observable<CreateClientResponse> {
     return this.http.post<CreateClientResponse>(
       `${this.apiUrl}/clients`, 
@@ -60,6 +62,8 @@ export class ClientService {
     name: string; 
     video_url: string; 
     password?: string;
+    distributor_id: string;
+    transition_image_url: string;
   }): Observable<CreateClientResponse> {
     return this.http.put<CreateClientResponse>(
       `${this.apiUrl}/clients/${clientId}`, 
