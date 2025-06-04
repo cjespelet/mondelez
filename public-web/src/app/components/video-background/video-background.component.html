@@ -1,7 +1,12 @@
 <div class="video-container" *ngIf="!loading && !error && videoUrl">
-  <video #videoPlayer autoplay loop muted playsinline>
-    <source [src]="videoUrl" type="video/mp4">
-  </video>
+  <div class="video-wrapper">
+    <iframe 
+      [src]="videoUrl"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowfullscreen>
+    </iframe>
+  </div>
   
   <div class="transition-overlay" *ngIf="showTransitionImage">
     <img [src]="transitionImageUrl" alt="Transición" class="transition-image">
