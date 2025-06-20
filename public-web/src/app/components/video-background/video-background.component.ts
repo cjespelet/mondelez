@@ -4,6 +4,7 @@ import { AuthService } from '../../services/auth.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ApiService } from '../../services/api.service';
 import { environment } from '../../../environments/environment';
+import { ViewChild, ElementRef } from '@angular/core';
 
 @Component({
   selector: 'app-video-background',
@@ -17,6 +18,7 @@ export class VideoBackgroundComponent implements OnInit {
   error: string | null = null;
   showTransitionImage: boolean = false;
   private serverBaseUrl: string;
+  @ViewChild('videoPlayer') videoPlayer!: ElementRef<HTMLIFrameElement>;
 
   constructor(
     private apiService: ApiService,
@@ -29,6 +31,7 @@ export class VideoBackgroundComponent implements OnInit {
   }
 
   ngOnInit() {
+    
     this.loadVideo();
   }
 
@@ -76,8 +79,21 @@ export class VideoBackgroundComponent implements OnInit {
 
   goToGame() {
     this.showTransitionImage = true;
+    const iframe = this.videoPlayer?.nativeElement;
+    if (iframe && iframe.contentWindow) {
+      iframe.contentWindow.postMessage(
+        JSON.stringify({
+          event: 'command',
+          func: 'stopVideo',
+          args: []
+        }),
+        '*'
+      );
+    }
+    
+    // this.videoUrl = ''
     setTimeout(() => {
       this.router.navigate(['/game']);
-    }, 3000);
+    }, 6000);
   }
 } 

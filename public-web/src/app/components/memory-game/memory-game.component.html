@@ -29,7 +29,19 @@
       <button class="close-button" (click)="closeMessage()">
         <i class="fas fa-times"></i>
       </button>
-      <h2>{{ message }}</h2>
+      
+      <h2 *ngIf="messageType == 'win'" class="win">
+        {{ message }}
+        <i class="fas fa-trophy animate__animated animate__tada gold-trophy"></i>
+        <i  class="fas fa-trophy animate__animated animate__tada gold-trophy"></i>
+      </h2>
+
+      <h2 *ngIf="messageType != 'win'" class="lose">
+        {{ message }}
+      </h2>
+
+      
+
       <div class="phone-form" *ngIf="!phoneSubmitted">
         <p>¡Déjanos tu número para futuras promociones!</p>
         

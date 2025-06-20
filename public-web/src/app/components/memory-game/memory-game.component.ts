@@ -5,6 +5,7 @@ import { AuthService } from '../../services/auth.service';
 import { NgForm } from '@angular/forms';
 import { environment } from '../../../environments/environment';
 
+
 @Component({
   selector: 'app-memory-game',
   templateUrl: './memory-game.component.html',
@@ -126,6 +127,8 @@ export class MemoryGameComponent implements OnInit, OnDestroy {
     this.messageType = 'win';
     this.showMessage = true;
     this.phoneSubmitted = false;
+
+    
   }
 
   revealAllCards() {

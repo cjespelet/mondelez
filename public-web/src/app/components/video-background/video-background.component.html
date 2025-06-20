@@ -1,6 +1,7 @@
 <div class="video-container" *ngIf="!loading && !error && videoUrl">
   <div class="video-wrapper">
     <iframe 
+      #videoPlayer
       [src]="videoUrl"
       frameborder="0"
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
