@@ -78,22 +78,22 @@ export class VideoBackgroundComponent implements OnInit {
   }
 
   goToGame() {
-    this.showTransitionImage = true;
+    // this.showTransitionImage = true;
     const iframe = this.videoPlayer?.nativeElement;
-    if (iframe && iframe.contentWindow) {
-      iframe.contentWindow.postMessage(
-        JSON.stringify({
-          event: 'command',
-          func: 'stopVideo',
-          args: []
-        }),
-        '*'
-      );
-    }
+    // if (iframe && iframe.contentWindow) {
+    //   iframe.contentWindow.postMessage(
+    //     JSON.stringify({
+    //       event: 'command',
+    //       func: 'stopVideo',
+    //       args: []
+    //     }),
+    //     '*'
+    //   );
+    // }
     
-    // this.videoUrl = ''
-    setTimeout(() => {
+    // // this.videoUrl = ''
+    // setTimeout(() => {
       this.router.navigate(['/game']);
-    }, 6000);
+    // }, 6000);
   }
 } 
