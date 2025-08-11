@@ -53,7 +53,7 @@
           <td>{{ formatDate(result.date) }}</td>
           <td>{{ formatTime(result.created_at) }}</td>
           <td>{{ result.result }}</td>
-          <td>{{ result.phone_number }}</td>
+          <td>{{ result.phone_number === '0000000000' ? '' : result.phone_number }}</td>
         </tr>
       </tbody>
     </table>
