@@ -158,7 +158,7 @@ export class MemoryGameComponent implements OnInit, OnDestroy {
             this.phoneSubmitted = true;
             this.phoneNumber = '';
             setTimeout(() => {
-              this.closeMessage();
+              this.closeM();
             }, 2000);
           },
           error: (error) => {
