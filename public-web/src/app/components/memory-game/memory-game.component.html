@@ -1,5 +1,5 @@
 <div class="game-container" (click)="!gameStarted">
-  <h2 class="game-title" *ngIf="gameStarted">Da vuelta la carta ganadora</h2>
+  <!-- <h2 class="game-title" *ngIf="gameStarted">Da vuelta la carta ganadora</h2> -->
   <div class="cards-grid" *ngIf="gameStarted" [style.grid-template-columns]="'repeat(' + columns + ', 1fr)'">
     <div 
       *ngFor="let card of cards; let i = index"
