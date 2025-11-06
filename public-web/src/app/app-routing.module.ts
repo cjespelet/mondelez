@@ -8,6 +8,7 @@ import { VideoBackgroundComponent } from './components/video-background/video-ba
 import { GameResultsComponent } from './components/game-results/game-results.component';
 import { ClientsComponent } from './components/clients/clients.component';
 import { DistributorsComponent } from './components/distributors/distributors.component';
+import { ReportsListComponent } from './components/reports-list/reports-list.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -20,6 +21,12 @@ const routes: Routes = [
   { 
     path: 'clients', 
     component: ClientsComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { role: 'admin' }
+  },
+  {
+    path: 'clients/:id/reports',
+    component: ReportsListComponent,
     canActivate: [AuthGuard, RoleGuard],
     data: { role: 'admin' }
   },

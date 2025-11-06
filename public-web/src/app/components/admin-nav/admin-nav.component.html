@@ -1,9 +1,9 @@
 <nav class="admin-nav">
   <div class="nav-content">
     <div class="nav-links">
-      <button (click)="navigateToResults()">Resultados</button>
-      <button (click)="navigateToClients()">Clientes</button>
-      <button (click)="navigateToDistributors()">Distribuidores</button>
+      <button routerLink="/game-results" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">Resultados</button>
+      <button routerLink="/clients" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">Clientes</button>
+      <button routerLink="/distributors" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: false }">Distribuidores</button>
     </div>
     <button class="logout-button" (click)="logout()">
       <i class="fas fa-sign-out-alt"></i> Cerrar Sesión

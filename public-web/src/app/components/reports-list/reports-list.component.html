@@ -1,0 +1,50 @@
+<app-admin-nav></app-admin-nav>
+<div class="reports-container">
+  <div class="header">
+    <h2>Reportes del Cliente - {{ clientName }}</h2>
+    <button class="back-button" (click)="backToClients()">
+      <i class="fas fa-arrow-left"></i> Volver a Clientes
+    </button>
+  </div>
+
+  <form [formGroup]="addForm" (ngSubmit)="addReport()" class="add-form">
+    <input type="url" placeholder="URL del PDF (Google Drive)" formControlName="url">
+    <button type="submit" [disabled]="addForm.invalid || loading">
+      <i class="fas fa-file-upload"></i> Agregar reporte
+    </button>
+  </form>
+
+  <div class="reports-table-container">
+    <table class="reports-table">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>URL</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of reports">
+          <td>{{ r.created_at | date:'medium' }}</td>
+          <td class="url-cell">{{ r.url }}</td>
+          <td class="actions">
+            <button class="open-button" (click)="openReport(r.url)"><i class="fas fa-external-link-alt"></i> Abrir</button>
+            <button class="delete-button" (click)="deleteReport(r)"><i class="fas fa-trash"></i> Eliminar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="loading" class="loading">Cargando...</div>
+    <div *ngIf="error" class="error">{{ error }}</div>
+    <div *ngIf="!loading && reports.length === 0" class="no-results">Sin reportes</div>
+  </div>
+
+  <div class="pagination" *ngIf="totalItems > 0">
+    <button [disabled]="currentPage === 1" (click)="onPageChange(currentPage - 1)">Anterior</button>
+    <span class="page-info">Página {{ currentPage }} de {{ totalPages }}</span>
+    <button [disabled]="currentPage * itemsPerPage >= totalItems" (click)="onPageChange(currentPage + 1)">Siguiente</button>
+  </div>
+</div>
+
+

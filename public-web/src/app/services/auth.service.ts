@@ -44,7 +44,7 @@ export class AuthService {
   }
 
   login(username: string, password: string): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, { username, password })
+    return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, { username, password })
       .pipe(
         tap((response: LoginResponse) => {
           if (response.success) {
@@ -92,7 +92,7 @@ export class AuthService {
   }
 
   getVideoUrl(): Observable<VideoUrlResponse> {
-    return this.http.get<VideoUrlResponse>(`${this.apiUrl}/video-url`);
+    return this.http.get<VideoUrlResponse>(`${this.apiUrl}/auth/video-url`);
   }
 
   private redirectBasedOnRole(role: string): void {

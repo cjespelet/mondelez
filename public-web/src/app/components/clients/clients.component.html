@@ -52,6 +52,9 @@
           <td class="actions">
             <button class="edit-button" (click)="openEditModal(client)">Editar</button>
             <button class="delete-button" (click)="deleteClient(client.id)">Eliminar</button>
+            <button class="reports-button" [routerLink]="['/clients', client.id, 'reports']" [queryParams]="{ name: client.name }">
+              <i class="fas fa-file-alt"></i> Reportes
+            </button>
           </td>
         </tr>
       </tbody>

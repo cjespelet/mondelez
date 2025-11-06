@@ -10,6 +10,8 @@ const GameResult = require('./models/gameResult.model');
 const gameResultRoutes = require('./routes/gameResult.routes');
 const authRoutes = require('./routes/auth.routes');
 const clientRoutes = require('./routes/client.routes');
+const reportRoutes = require('./routes/report.routes');
+const ReportController = require('./controllers/report.controller');
 const phoneRoutes = require('./routes/phone.routes');
 const distributorRoutes = require('./routes/distributor.routes');
 const AuthController = require('./controllers/auth.controller');
@@ -38,6 +40,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/game-results', gameResultRoutes);
 app.use('/api/clients', clientRoutes);
 app.use('/api/phone-numbers', phoneRoutes);
+app.use('/api', reportRoutes);
 app.use('/api/distributors', distributorRoutes);
 
 // Rutas adicionales para compatibilidad
@@ -65,6 +68,9 @@ app.use((err, req, res, next) => {
     error: process.env.NODE_ENV === 'development' ? err.message : undefined
   });
 });
+
+// Ensure tables for reports exist
+ReportController.ensureTable();
 
 // Iniciar servidor
 app.listen(PORT, async () => {

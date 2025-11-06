@@ -5,6 +5,8 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ApiService } from '../../services/api.service';
 import { environment } from '../../../environments/environment';
 import { ViewChild, ElementRef } from '@angular/core';
+import { ReportService } from '../../services/report.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-video-background',
@@ -19,12 +21,20 @@ export class VideoBackgroundComponent implements OnInit {
   showTransitionImage: boolean = false;
   private serverBaseUrl: string;
   @ViewChild('videoPlayer') videoPlayer!: ElementRef<HTMLIFrameElement>;
+  latestReportUrl: string | null = null;
+  showAccessModal: boolean = false;
+  accessUsername: string = '';
+  accessPassword: string = '';
+  accessLoading: boolean = false;
+  accessError: string | null = null;
 
   constructor(
     private apiService: ApiService,
     private router: Router,
     private authService: AuthService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private reportService: ReportService,
+    private http: HttpClient
   ) {
     // Extraer la URL base del servidor sin /api
     this.serverBaseUrl = environment.apiUrl.replace('/api', '');
@@ -33,6 +43,7 @@ export class VideoBackgroundComponent implements OnInit {
   ngOnInit() {
     
     this.loadVideo();
+    this.loadLatestReport();
   }
 
   loadVideo() {
@@ -76,6 +87,53 @@ export class VideoBackgroundComponent implements OnInit {
     const match = url.match(regExp);
     return (match && match[2].length === 11) ? match[2] : '';
   }
+
+  private loadLatestReport() {
+    const clientId = this.authService.getClientId();
+    if (!clientId) return;
+    this.reportService.getReports(clientId, 1, 1).subscribe({
+      next: (res) => {
+        const first = res.data && res.data.length ? res.data[0] : null;
+        this.latestReportUrl = first ? first.url : null;
+      },
+      error: () => {
+        this.latestReportUrl = null;
+      }
+    });
+  }
+
+  openLatestReport() {
+    if (!this.latestReportUrl) return;
+    this.accessError = null;
+    this.accessUsername = '';
+    this.accessPassword = '';
+    this.showAccessModal = true;
+  }
+
+  closeAccessModal() {
+    if (this.accessLoading) return;
+    this.showAccessModal = false;
+  }
+
+  confirmAccess() {
+    if (!this.accessUsername || !this.accessPassword || !this.latestReportUrl) {
+      this.accessError = 'Usuario y contraseña son requeridos';
+      return;
+    }
+    this.accessLoading = true;
+    this.accessError = null;
+    const ok = this.accessUsername === 'mdlz' && this.accessPassword === '123456';
+    setTimeout(() => {
+      this.accessLoading = false;
+      if (ok) {
+        window.open(this.latestReportUrl as string, '_blank');
+        this.showAccessModal = false;
+      } else {
+        this.accessError = 'Credenciales inválidas o sin permiso';
+      }
+    }, 200);
+  }
+
 
   goToGame() {
     // this.showTransitionImage = true;

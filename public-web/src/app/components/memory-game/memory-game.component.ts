@@ -29,6 +29,8 @@ export class MemoryGameComponent implements OnInit, OnDestroy {
   private serverBaseUrl: string;
   private inactivityTimer: any;
   private readonly INACTIVITY_TIMEOUT = 1200000; // 2 minutos en milisegundos
+  private winAudio: HTMLAudioElement | null = null;
+
 
   constructor(
     private gameService: GameService,
@@ -108,6 +110,7 @@ export class MemoryGameComponent implements OnInit, OnDestroy {
     this.selectedCard = index;
 
     if (this.cards[index].isWinner) {
+      this.playSound()
       this.showWinMessage();
     } else {
       this.revealAllCards();
@@ -119,6 +122,22 @@ export class MemoryGameComponent implements OnInit, OnDestroy {
       //     this.resetGame();
       //   }, 6000);
       // }, 2000);
+    }
+  }
+
+  playSound() {
+    if (!this.winAudio) {
+      this.winAudio = new Audio('assets/sounds/aplausos.wav');
+    }  
+    // Reiniciar si ya estaba sonando
+    this.winAudio.currentTime = 0;
+    this.winAudio.play();
+  }
+
+  stopSound() {
+    if (this.winAudio) {
+      this.winAudio.pause();
+      this.winAudio.currentTime = 0; // vuelve al inicio
     }
   }
 
@@ -170,6 +189,7 @@ export class MemoryGameComponent implements OnInit, OnDestroy {
   }
 
   closeMessage() {
+    this.stopSound()
     this.showMessage = false;
 
     const clientId = this.authService.getClientId();

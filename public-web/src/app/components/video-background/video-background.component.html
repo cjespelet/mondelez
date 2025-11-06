@@ -9,6 +9,34 @@
     </iframe>
   </div>
   
+  <button 
+    *ngIf="latestReportUrl" 
+    class="open-report-button" 
+    title="Abrir último reporte"
+    (click)="openLatestReport()">
+    <i class="fas fa-file-pdf"></i>
+  </button>
+
+  <!-- Modal de verificación de acceso -->
+  <div class="access-modal-backdrop" *ngIf="showAccessModal">
+    <div class="access-modal">
+      <h3>Validar acceso al reporte</h3>
+      <div class="form-row">
+        <label>Usuario</label>
+        <input type="text" [(ngModel)]="accessUsername" [disabled]="accessLoading">
+      </div>
+      <div class="form-row">
+        <label>Contraseña</label>
+        <input type="password" [(ngModel)]="accessPassword" [disabled]="accessLoading">
+      </div>
+      <div class="access-error" *ngIf="accessError">{{ accessError }}</div>
+      <div class="actions">
+        <button (click)="closeAccessModal()" [disabled]="accessLoading">Cancelar</button>
+        <button (click)="confirmAccess()" [disabled]="accessLoading">Continuar</button>
+      </div>
+    </div>
+  </div>
+  
   <!-- <div class="transition-overlay" *ngIf="showTransitionImage">
     <img [src]="transitionImageUrl" alt="Transición" class="transition-image">
   </div> -->
