@@ -1,0 +1,68 @@
+<app-admin-nav></app-admin-nav>
+<div class="game-config-container">
+  <div class="header">
+    <h2>Configuración de Juegos - Cliente #{{ clientId }}</h2>
+    <button class="back-button" (click)="backToClients()">
+      <i class="fas fa-arrow-left"></i> Volver a Clientes
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading">Cargando...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+  <div *ngIf="success" class="success">{{ success }}</div>
+
+  <form [formGroup]="configForm" (ngSubmit)="saveConfig()" *ngIf="!loading">
+    <div class="section">
+      <h3>Juegos Disponibles</h3>
+      <div class="games-list" formArrayName="games">
+        <div *ngFor="let game of allGames; let i = index" class="game-item">
+          <label>
+            <input
+              type="checkbox"
+              [formControl]="$any(gamesFormArray.at(i))"
+              (change)="onRuletaToggle()">
+            <span>{{ game.name === 'tapadita' ? 'Tapadita' : 'Ruleta' }}</span>
+            <small>{{ game.description }}</small>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" *ngIf="isRuletaSelected()">
+      <h3>Premios de Ruleta</h3>
+      <p class="help-text">Agrega los premios que estarán disponibles en la ruleta de este cliente</p>
+      
+      <div [formGroup]="prizesForm">
+        <div formArrayName="prizes">
+          <div
+            *ngFor="let prize of prizesFormArray.controls; let i = index"
+            [formGroupName]="i"
+            class="prize-item">
+            <input
+              type="text"
+              formControlName="description"
+              placeholder="Descripción del premio"
+              class="prize-input">
+            <button
+              type="button"
+              class="remove-button"
+              (click)="removePrize(i)"
+              [disabled]="prizesFormArray.length === 1">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <button type="button" class="add-button" (click)="addPrize()">
+        <i class="fas fa-plus"></i> Agregar Premio
+      </button>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="cancel-button" (click)="backToClients()">Cancelar</button>
+      <button type="submit" class="save-button" [disabled]="loading">Guardar Configuración</button>
+    </div>
+  </form>
+</div>
+

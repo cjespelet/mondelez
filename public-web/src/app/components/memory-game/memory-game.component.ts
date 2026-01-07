@@ -189,33 +189,36 @@ export class MemoryGameComponent implements OnInit, OnDestroy {
   }
 
   closeMessage() {
-    this.stopSound()
-    this.showMessage = false;
+     this.stopSound()
+     this.showMessage = false;
 
     const clientId = this.authService.getClientId();
-      if (clientId) {
-        console.log('Saving game result...');
-        this.gameService.saveGameResult({
-          clientId: clientId.toString(),
-          result:  'Perdido',
-          phoneNumber: '0000000000',
-          date: new Date().toISOString()
-        }).subscribe({
-          next: () => {
-            console.log('Game result saved successfully');
-            this.phoneSubmitted = true;
-            this.phoneNumber = '';
-            setTimeout(() => {
-              this.closeM();
-            }, 2000);
-          },
-          error: (error) => {
-            console.error('Error al guardar el resultado:', error);
-          }
-        });
-      }
+    const finalizeNavigation = () => {
+      setTimeout(() => {
+        this.closeM();
+      }, 2000);
+    };
 
-
+    if (clientId) {
+      this.gameService.saveGameResult({
+        clientId: clientId.toString(),
+        result:  'Perdido',
+        phoneNumber: '0000000000',
+        date: new Date().toISOString()
+      }).subscribe({
+        next: () => {
+          this.phoneSubmitted = true;
+          this.phoneNumber = '';
+          finalizeNavigation();
+        },
+        error: (error) => {
+          console.error('Error al guardar el resultado:', error);
+          finalizeNavigation();
+        }
+      });
+    } else {
+      finalizeNavigation();
+    }
   }
   closeM() {
     this.showMessage = false;

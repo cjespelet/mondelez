@@ -9,6 +9,9 @@ import { GameResultsComponent } from './components/game-results/game-results.com
 import { ClientsComponent } from './components/clients/clients.component';
 import { DistributorsComponent } from './components/distributors/distributors.component';
 import { ReportsListComponent } from './components/reports-list/reports-list.component';
+import { GameSelectionComponent } from './components/game-selection/game-selection.component';
+import { WheelGameComponent } from './components/wheel-game/wheel-game.component';
+import { GameConfigComponent } from './components/game-config/game-config.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -30,6 +33,12 @@ const routes: Routes = [
     canActivate: [AuthGuard, RoleGuard],
     data: { role: 'admin' }
   },
+  {
+    path: 'clients/:id/game-config',
+    component: GameConfigComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { role: 'admin' }
+  },
   { 
     path: 'distributors', 
     component: DistributorsComponent,
@@ -45,6 +54,18 @@ const routes: Routes = [
   { 
     path: 'game', 
     component: MemoryGameComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { role: 'client' }
+  },
+  {
+    path: 'game-selection',
+    component: GameSelectionComponent,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { role: 'client' }
+  },
+  {
+    path: 'wheel-game',
+    component: WheelGameComponent,
     canActivate: [AuthGuard, RoleGuard],
     data: { role: 'client' }
   },

@@ -117,6 +117,18 @@ export class GameResultsComponent implements OnInit {
     }
     
     this.gameService.getGameResults(params).subscribe((response: GameResultsResponse) => {
+      console.log('Game results received:', response.results);
+      // Log para verificar premios de ruleta
+      response.results.forEach(result => {
+        if (result.game_type === 'ruleta') {
+          console.log('Ruleta result:', { 
+            id: result.id, 
+            result: result.result, 
+            prize: result.prize,
+            game_type: result.game_type 
+          });
+        }
+      });
       this.results = response.results;
       this.totalItems = response.total;
       this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
@@ -156,6 +168,26 @@ export class GameResultsComponent implements OnInit {
     return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
   }
 
+  getGameName(gameType?: string): string {
+    if (!gameType) return '-';
+    switch (gameType.toLowerCase()) {
+      case 'tapadita':
+        return 'Tapadita';
+      case 'ruleta':
+        return 'Ruleta';
+      default:
+        return gameType;
+    }
+  }
+
+  getPrizeDisplay(result: GameResult): string {
+    // Solo mostrar premio si es ruleta y el resultado es Ganado
+    if (result.game_type?.toLowerCase() === 'ruleta' && result.result === 'Ganado') {
+      return result.prize && result.prize.trim() !== '' ? result.prize : '-';
+    }
+    return '-';
+  }
+
   logout() {
     this.authService.logout();
   }
@@ -172,11 +204,13 @@ export class GameResultsComponent implements OnInit {
       result.client_name || '',
       this.formatDate(result.date),
       this.formatTime(result.created_at),
-      result.result
+      this.getGameName(result.game_type),
+      result.result,
+      result.prize || '-'
     ]);
 
     autoTable(doc, {
-      head: [['Cliente', 'Fecha', 'Hora', 'Resultado']],
+      head: [['Cliente', 'Fecha', 'Hora', 'Juego', 'Resultado', 'Premio']],
       body: tableData,
       startY: 30,
       theme: 'grid',

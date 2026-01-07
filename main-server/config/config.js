@@ -4,11 +4,11 @@ module.exports = {
   jwtSecret: process.env.JWT_SECRET || 'your-secret-key',
   port: process.env.PORT || 3000,
   database: {
-    host: process.env.DB_HOST || 'dpg-d0jjk8buibrs73d3kgg0-a',
+    host: process.env.DB_HOST || 'localhost',
     port: process.env.DB_PORT || 5432,
-    database: process.env.DB_NAME || 'memory_game_3tzf',
-    user: process.env.DB_USER || 'memory_game_3tzf_user',
-    password: process.env.DB_PASSWORD || '1GwP5Klclmb7BmYSlzURxNCqgusW3IM8'
+    database: process.env.DB_NAME || 'memory_game',
+    user: process.env.DB_USER || 'postgres',
+    password: process.env.DB_PASSWORD || '2345'
   },
   jwt: {
     secret: process.env.JWT_SECRET || 'your-secret-key',
@@ -20,3 +20,11 @@ module.exports = {
     }
   }
 }; 
+
+// database: {
+//   host: process.env.DB_HOST || 'dpg-d0jjk8buibrs73d3kgg0-a',
+//   port: process.env.DB_PORT || 5432,
+//   database: process.env.DB_NAME || 'memory_game_3tzf',
+//   user: process.env.DB_USER || 'memory_game_3tzf_user',
+//   password: process.env.DB_PASSWORD || '1GwP5Klclmb7BmYSlzURxNCqgusW3IM8'
+// },

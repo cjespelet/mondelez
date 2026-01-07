@@ -4,7 +4,7 @@ const GameResult = require('../models/gameResult.model');
 class GameResultController {
   static async saveResult(req, res) {
     try {
-      const { clientId, result, date, phoneNumber } = req.body;
+      const { clientId, result, date, phoneNumber, gameType = 'tapadita' } = req.body;
       
       // Validar los datos recibidos
       if (!clientId || !result || !date) {
@@ -15,7 +15,10 @@ class GameResultController {
         return res.status(400).json({ error: 'Resultado inválido' });
       }
 
-      const savedResult = await GameResult.saveResult(clientId, result, date, phoneNumber);
+      const allowedGames = ['tapadita', 'ruleta'];
+      const normalizedGameType = allowedGames.includes(String(gameType)) ? String(gameType) : 'tapadita';
+
+      const savedResult = await GameResult.saveResult(clientId, result, date, phoneNumber, normalizedGameType);
       res.status(201).json({
         message: 'Resultado guardado exitosamente',
         id: savedResult.id
@@ -39,7 +42,7 @@ class GameResultController {
 
   static async getResultsWithFilters(req, res) {
     try {
-      const { page = 1, limit = 10, client, date, distributor } = req.query;
+      const { page = 1, limit = 10, client, date, distributor, gameType } = req.query;
       console.log('Query params:', { page, limit, client, date, distributor });
       const offset = (page - 1) * limit;
 
@@ -68,6 +71,12 @@ class GameResultController {
       if (distributor) {
         query += ` AND c.distributor_id::integer = $${paramIndex}::integer`;
         params.push(distributor);
+        paramIndex++;
+      }
+
+      if (gameType) {
+        query += ` AND gr.game_type = $${paramIndex}`;
+        params.push(gameType);
         paramIndex++;
       }
 

@@ -1,0 +1,69 @@
+<div class="wheel-game-container">
+  <h1 class="title">Ruleta Mondelez</h1>
+  <div class="wheel-wrapper">
+    <div class="pointer"></div>
+    <div
+      class="wheel"
+      [style.background]="wheelGradient"
+      [style.transform]="'rotate(' + currentRotation + 'deg)'"
+      [class.spinning]="isSpinning">
+      <div
+        class="segment-label"
+        *ngFor="let segment of segments; index as i"
+        [ngStyle]="getLabelStyle(i)">
+        <div class="label-outer">
+          <div
+            class="label-content"
+            [class.small]="segment.label.length > 14"
+            [class.losing]="segment.result === 'Perdido'"
+            [ngStyle]="getLabelContentStyle(i)">
+            <i [class]="segment.icon"></i>
+            <span>{{ segment.label }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button
+      class="spin-button"
+      (click)="spinWheel()"
+      [disabled]="isSpinning">
+      🎯 Girar ruleta
+    </button>
+  </div>
+
+  <div class="result-modal-backdrop" *ngIf="spinMessage">
+    <div class="result-modal">
+      <button class="close-button" type="button" (click)="closeResultModal()">×</button>
+      <div class="message" [class.win]="resultType === 'Ganado'">
+        {{ spinMessage }}
+      </div>
+
+      <form #phoneForm="ngForm" (ngSubmit)="submitPhone(phoneForm)" *ngIf="!phoneSubmitted">
+        <label for="phone">Ingresa tu número de teléfono (opcional)</label>
+        <input
+          id="phone"
+          name="phone"
+          type="tel"
+          minlength="8"
+          maxlength="15"
+          [(ngModel)]="phoneNumber"
+          [disabled]="submittingResult"
+          placeholder="Opcional">
+        <div class="form-actions">
+          <button type="button" class="skip-button" (click)="closeResultModal()" [disabled]="submittingResult">
+            Continuar sin teléfono
+          </button>
+          <button type="submit" [disabled]="submittingResult || (phoneNumber && phoneNumber.trim() !== '' && !phoneForm.valid)">
+            Enviar
+          </button>
+        </div>
+      </form>
+
+      <div class="success" *ngIf="phoneSubmitted">
+        ¡Número registrado! Gracias por participar.
+      </div>
+    </div>
+  </div>
+</div>
+
+

@@ -16,6 +16,9 @@ import { ClientsComponent } from './components/clients/clients.component';
 import { AdminNavComponent } from './components/admin-nav/admin-nav.component';
 import { DistributorsComponent } from './components/distributors/distributors.component';
 import { ReportsListComponent } from './components/reports-list/reports-list.component';
+import { GameSelectionComponent } from './components/game-selection/game-selection.component';
+import { WheelGameComponent } from './components/wheel-game/wheel-game.component';
+import { GameConfigComponent } from './components/game-config/game-config.component';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
@@ -31,7 +34,10 @@ import { environment } from '../environments/environment';
     ClientsComponent,
     AdminNavComponent,
     DistributorsComponent,
-    ReportsListComponent
+    ReportsListComponent,
+    GameSelectionComponent,
+    WheelGameComponent,
+    GameConfigComponent
   ],
   imports: [
     BrowserModule,

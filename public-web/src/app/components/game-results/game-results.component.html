@@ -43,7 +43,9 @@
           <th>Cliente</th>
           <th>Fecha</th>
           <th>Hora</th>
+          <th>Juego</th>
           <th>Resultado</th>
+          <th>Premio</th>
           <th>Teléfono</th>
         </tr>
       </thead>
@@ -52,7 +54,9 @@
           <td>{{ result.client_name }}</td>
           <td>{{ formatDate(result.date) }}</td>
           <td>{{ formatTime(result.created_at) }}</td>
+          <td>{{ getGameName(result.game_type) }}</td>
           <td>{{ result.result }}</td>
+          <td>{{ getPrizeDisplay(result) }}</td>
           <td>{{ result.phone_number === '0000000000' ? '' : result.phone_number }}</td>
         </tr>
       </tbody>

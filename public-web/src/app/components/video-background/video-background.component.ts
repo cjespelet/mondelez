@@ -7,6 +7,7 @@ import { environment } from '../../../environments/environment';
 import { ViewChild, ElementRef } from '@angular/core';
 import { ReportService } from '../../services/report.service';
 import { HttpClient } from '@angular/common/http';
+import { GameConfigService } from '../../services/game-config.service';
 
 @Component({
   selector: 'app-video-background',
@@ -34,7 +35,8 @@ export class VideoBackgroundComponent implements OnInit {
     private authService: AuthService,
     private sanitizer: DomSanitizer,
     private reportService: ReportService,
-    private http: HttpClient
+    private http: HttpClient,
+    private gameConfigService: GameConfigService
   ) {
     // Extraer la URL base del servidor sin /api
     this.serverBaseUrl = environment.apiUrl.replace('/api', '');
@@ -136,22 +138,33 @@ export class VideoBackgroundComponent implements OnInit {
 
 
   goToGame() {
-    // this.showTransitionImage = true;
-    const iframe = this.videoPlayer?.nativeElement;
-    // if (iframe && iframe.contentWindow) {
-    //   iframe.contentWindow.postMessage(
-    //     JSON.stringify({
-    //       event: 'command',
-    //       func: 'stopVideo',
-    //       args: []
-    //     }),
-    //     '*'
-    //   );
-    // }
-    
-    // // this.videoUrl = ''
-    // setTimeout(() => {
-      this.router.navigate(['/game']);
-    // }, 6000);
+    const clientId = this.authService.getClientId();
+    if (!clientId) {
+      this.router.navigate(['/game-selection']);
+      return;
+    }
+
+    this.gameConfigService.getClientGames(clientId).subscribe({
+      next: (response) => {
+        if (response.success && response.games.length === 1) {
+          // Si solo tiene un juego, ir directo
+          const game = response.games[0];
+          if (game.name === 'tapadita') {
+            this.router.navigate(['/game']);
+          } else if (game.name === 'ruleta') {
+            this.router.navigate(['/wheel-game']);
+          } else {
+            this.router.navigate(['/game-selection']);
+          }
+        } else {
+          // Si tiene más de un juego o ninguno, ir a selección
+          this.router.navigate(['/game-selection']);
+        }
+      },
+      error: () => {
+        // En caso de error, ir a selección
+        this.router.navigate(['/game-selection']);
+      }
+    });
   }
 } 

@@ -55,6 +55,9 @@
             <button class="reports-button" [routerLink]="['/clients', client.id, 'reports']" [queryParams]="{ name: client.name }">
               <i class="fas fa-file-alt"></i> Reportes
             </button>
+            <button class="game-config-button" [routerLink]="['/clients', client.id, 'game-config']">
+              <i class="fas fa-gamepad"></i> Juegos
+            </button>
           </td>
         </tr>
       </tbody>
