@@ -1,0 +1,28 @@
+<div class="game-selection-container">
+  <h2>Selecciona un juego</h2>
+  <div *ngIf="loading" class="loading">Cargando juegos...</div>
+  <div class="cards" *ngIf="!loading">
+    <button class="game-card" (click)="openTapadita()" *ngIf="hasGame('tapadita')">
+      <i class="fas fa-th-large"></i>
+      <h3>Tapadita</h3>
+      <p>Descubre los pares en el clásico juego de memoria.</p>
+    </button>
+    <button class="game-card" (click)="openRuleta()" *ngIf="hasGame('ruleta')">
+      <svg class="wheel-icon" viewBox="0 0 120 160" aria-hidden="true">
+        <g fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="60" cy="60" r="45" stroke="#ffffff" fill="rgba(255,255,255,0.15)" />
+          <path d="M60 15 L60 105" stroke="#ffffff" />
+          <path d="M15 60 L105 60" stroke="#ffffff" />
+          <path d="M28 28 L92 92" stroke="#ffffff" />
+          <path d="M92 28 L28 92" stroke="#ffffff" />
+          <circle cx="60" cy="60" r="8" stroke="#ffffff" fill="rgba(255,255,255,0.4)" />
+          <polygon points="60,110 50,140 70,140" stroke="#ffffff" fill="rgba(255,255,255,0.2)" />
+        </g>
+      </svg>
+      <h3>Ruleta</h3>
+      <p>Gira y descubre si ganas un premio.</p>
+    </button>
+  </div>
+</div>
+
+

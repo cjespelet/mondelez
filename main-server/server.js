@@ -15,6 +15,8 @@ const ReportController = require('./controllers/report.controller');
 const phoneRoutes = require('./routes/phone.routes');
 const distributorRoutes = require('./routes/distributor.routes');
 const AuthController = require('./controllers/auth.controller');
+const wheelRoutes = require('./routes/wheel.routes');
+const gameConfigRoutes = require('./routes/gameConfig.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -42,6 +44,8 @@ app.use('/api/clients', clientRoutes);
 app.use('/api/phone-numbers', phoneRoutes);
 app.use('/api', reportRoutes);
 app.use('/api/distributors', distributorRoutes);
+app.use('/api/wheel', wheelRoutes);
+app.use('/api/game-config', gameConfigRoutes);
 
 // Rutas adicionales para compatibilidad
 app.post('/api/login', AuthController.login);
@@ -77,7 +81,7 @@ app.listen(PORT, async () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
   try {
     // Inicializar tablas de la base de datos
-    // await GameResult.createTable();
+    await GameResult.createTable();
     console.log('Tablas inicializadas correctamente');
   } catch (error) {
     console.error('Error al inicializar las tablas:', error);

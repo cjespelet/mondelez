@@ -6,6 +6,8 @@ export interface GameResult {
   created_at: string;
   client_name?: string;
   phone_number?: string;
+  game_type?: string;
+  prize?: string;
 }
 
 export interface GameResultsResponse {

@@ -13,9 +13,45 @@ class GameResult {
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           phone_number VARCHAR(20)
         );
+      `);
 
+      // Agregar columna game_type si no existe
+      await pool.query(`
+        DO $$ 
+        BEGIN
+          IF NOT EXISTS (
+            SELECT 1 
+            FROM information_schema.columns 
+            WHERE table_name = 'game_results' 
+            AND column_name = 'game_type'
+          ) THEN
+            ALTER TABLE game_results 
+            ADD COLUMN game_type VARCHAR(50) NOT NULL DEFAULT 'tapadita';
+          END IF;
+        END $$;
+      `);
+
+      // Agregar columna prize si no existe
+      await pool.query(`
+        DO $$ 
+        BEGIN
+          IF NOT EXISTS (
+            SELECT 1 
+            FROM information_schema.columns 
+            WHERE table_name = 'game_results' 
+            AND column_name = 'prize'
+          ) THEN
+            ALTER TABLE game_results 
+            ADD COLUMN prize VARCHAR(255);
+          END IF;
+        END $$;
+      `);
+
+      // Crear índices
+      await pool.query(`
         CREATE INDEX IF NOT EXISTS idx_game_results_client_id ON game_results(client_id);
         CREATE INDEX IF NOT EXISTS idx_game_results_date ON game_results(date);
+        CREATE INDEX IF NOT EXISTS idx_game_results_game_type ON game_results(game_type);
       `);
 
       // Crear la tabla de clientes si no existe
@@ -49,15 +85,28 @@ class GameResult {
     }
   }
 
-  static async saveResult(clientId, result, date, phoneNumber) {
+  static async saveResult(clientId, result, date, phoneNumber, gameType = 'tapadita', prize = null) {
     try {
       const queryResult = await pool.query(
-        'INSERT INTO game_results (client_id, result, date, phone_number) VALUES ($1, $2, $3, $4) RETURNING id',
-        [clientId, result, date, phoneNumber]
+        'INSERT INTO game_results (client_id, result, date, phone_number, game_type, prize) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+        [clientId, result, date, phoneNumber, gameType, prize]
       );
       return queryResult.rows[0];
     } catch (error) {
       console.error('Error al guardar resultado:', error);
+      throw error;
+    }
+  }
+
+  static async updatePhone(resultId, phoneNumber) {
+    try {
+      await pool.query(
+        'UPDATE game_results SET phone_number = $1 WHERE id = $2',
+        [phoneNumber, resultId]
+      );
+      return { success: true };
+    } catch (error) {
+      console.error('Error al actualizar teléfono:', error);
       throw error;
     }
   }
