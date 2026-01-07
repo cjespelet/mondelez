@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const pool = require('./config/database');
 const config = require('./config/config');
 const bcrypt = require('bcryptjs');
@@ -20,6 +21,36 @@ const gameConfigRoutes = require('./routes/gameConfig.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Función para encontrar la ruta de los archivos estáticos de Angular
+function findStaticPath() {
+  const possiblePaths = [
+    path.join(__dirname, '../public-web/dist/public-web/browser'),
+    path.join(__dirname, '../public-web/dist/browser'),
+    path.join(__dirname, '../../public-web/dist/public-web/browser'),
+    path.join(__dirname, '../../public-web/dist/browser'),
+    path.join(__dirname, 'public-web/dist/public-web/browser'),
+    path.join(__dirname, 'public-web/dist/browser'),
+    // Para Render
+    path.join(process.cwd(), 'public-web/dist/public-web/browser'),
+    path.join(process.cwd(), 'public-web/dist/browser'),
+    path.join(process.cwd(), 'dist/public-web/browser'),
+    path.join(process.cwd(), 'dist/browser'),
+  ];
+
+  for (const staticPath of possiblePaths) {
+    const indexPath = path.join(staticPath, 'index.html');
+    if (fs.existsSync(indexPath)) {
+      console.log(`Archivos estáticos encontrados en: ${staticPath}`);
+      return staticPath;
+    }
+  }
+
+  console.warn('⚠️  No se encontraron archivos estáticos de Angular. El frontend no estará disponible.');
+  return null;
+}
+
+const staticPath = findStaticPath();
 
 // Configuración de CORS
 app.use(cors({
@@ -52,16 +83,34 @@ app.post('/api/login', AuthController.login);
 app.get('/api/client-config', AuthController.getClientConfig);
 app.get('/api/video-url', auth, AuthController.getVideoUrl);
     
-// Servir archivos estáticos de Angular
-app.use(express.static(path.join(__dirname, '../public-web/dist/public-web/browser')));
+// Servir archivos estáticos de Angular (solo si se encontraron)
+if (staticPath) {
+  app.use(express.static(staticPath));
+  
+  // Manejar todas las demás rutas (SPA fallback)
+  app.get('*', (req, res) => {
+    const indexPath = path.join(staticPath, 'index.html');
+    if (fs.existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      res.status(404).json({
+        success: false,
+        message: 'Frontend no disponible. Archivos estáticos no encontrados.'
+      });
+    }
+  });
+} else {
+  // Si no hay archivos estáticos, solo responder con un mensaje
+  app.get('*', (req, res) => {
+    res.status(503).json({
+      success: false,
+      message: 'Frontend no disponible. Por favor, construye la aplicación Angular primero.'
+    });
+  });
+}
 
 // Servir archivos estáticos desde el directorio de uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-// Manejar todas las demás rutas
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public-web/dist/public-web/browser/index.html'));
-});
 
 // Middleware de manejo de errores
 app.use((err, req, res, next) => {
