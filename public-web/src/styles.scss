@@ -5,11 +5,34 @@
   box-sizing: border-box;
 }
 
-html, body {
+html {
   height: 100%;
   width: 100%;
-  overflow: hidden;
+  /* Usar altura dinámica para tablets */
+  height: -webkit-fill-available;
   font-family: 'Arial', sans-serif;
+}
+
+body {
+  min-height: 100%;
+  min-height: -webkit-fill-available;
+  min-height: 100dvh; /* Dynamic viewport height para navegadores modernos */
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
+  font-family: 'Arial', sans-serif;
+  position: relative;
+}
+
+app-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  min-height: -webkit-fill-available;
+  min-height: 100dvh;
+  width: 100%;
 }
 
 /* Estilos para tablet */
@@ -25,5 +48,38 @@ html, body {
   .cards-grid {
     grid-template-columns: repeat(3, 1fr) !important;
     grid-template-rows: repeat(8, 1fr) !important;
+  }
+}
+
+/* Asegurar que el contenido se ajuste en tablets en diferentes orientaciones */
+@media (min-width: 768px) and (max-width: 1024px) {
+  html, body {
+    height: 100%;
+    min-height: 100%;
+  }
+  
+  /* Ajustes para tablets en modo landscape */
+  @media (orientation: landscape) {
+    body {
+      overflow-y: auto;
+    }
+  }
+  
+  /* Ajustes para tablets en modo portrait */
+  @media (orientation: portrait) {
+    body {
+      overflow-y: auto;
+    }
+  }
+}
+
+/* Soporte para navegadores que no soportan dvh */
+@supports not (height: 100dvh) {
+  html {
+    height: 100%;
+  }
+  
+  body {
+    min-height: 100vh;
   }
 } 

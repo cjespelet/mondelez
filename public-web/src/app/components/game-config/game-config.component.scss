@@ -2,7 +2,9 @@
   padding: 2rem;
   max-width: 900px;
   margin: 0 auto;
-  height: calc(100vh - 80px); // Altura del nav + padding
+  min-height: calc(100vh - 80px);
+  min-height: calc(100dvh - 80px);
+  min-height: calc(-webkit-fill-available - 80px);
   overflow-y: auto;
   overflow-x: hidden;
   box-sizing: border-box;
