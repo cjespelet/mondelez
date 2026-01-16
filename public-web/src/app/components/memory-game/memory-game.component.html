@@ -25,9 +25,15 @@
       </button>
       
       <h2 *ngIf="messageType == 'win'" class="win">
-        {{ message }}
-        <i class="fas fa-trophy animate__animated animate__tada gold-trophy"></i>
-        <i  class="fas fa-trophy animate__animated animate__tada gold-trophy"></i>
+        <div class="win-message-line">
+          {{ message }}
+          <i class="fas fa-trophy animate__animated animate__tada gold-trophy"></i>
+          <i  class="fas fa-trophy animate__animated animate__tada gold-trophy"></i>
+        </div>
+        <div class="win-message-line tita-line">
+          <span>Ganaste una Tita</span>
+          <img src="assets/images/tita.png" alt="Tita" class="tita-image">
+        </div>
       </h2>
 
       <h2 *ngIf="messageType != 'win'" class="lose">
